@@ -24,17 +24,18 @@ class StoreAccount extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|min:3|max:255'
-        /*    'email' => 'required|email|max:191|unique:users',
-            'password1' => 'required|string|min:6|max:30',
-            'password2' => 'required|same:password1',
-            'sdt' => 'required|min:3|max:255',
-            'zalo' => 'required|min:3|max:255',
+            'name' => 'required|min:3|max:255',
+            'email' => 'required|email|max:191|unique:users',
+            'password' => 'required|string|min:6|max:30',
+            'password_confirm' => 'required|same:password',
+            'phone' => 'required|min:3|max:255',
+            'facebook' => 'required',
             'birth_day' => 'required|min:3|max:255',
-            'image' => 'required|min:3|max:255',
             'sex' => 'required',
+            'birth_day' => 'required|date',
             'permission' => 'required',
-            'department' => 'required',*/
+            'id_department' => 'required',
+            'id_cpny' => 'required',
         ];
     }
 }

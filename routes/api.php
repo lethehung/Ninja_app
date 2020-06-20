@@ -14,11 +14,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::post('login','API\AuthController@login');
+Route::group(['middleware' => 'auth:api'], function() {
+    Route::group(['prefix' => 'admin','middleware' => 'admin'], function () {
+        Route::apiResource('member','API\AdminController');
+    });
 });
-Route::prefix('admin')->group(function (){
-    Route::post('create_account' ,'API\AdminController@createuser');
-});
-
-
