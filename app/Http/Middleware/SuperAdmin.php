@@ -7,17 +7,10 @@ use Illuminate\Support\Facades\Auth;
 
 class SuperAdmin
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @return mixed
-     */
     public function handle($request, Closure $next)
     {
         {
-            $permission = Auth::user()->permisson;
+            $permission = Auth::user()->permission;
             if($permission == 0){
                 return $next($request);
             }

@@ -1,10 +1,9 @@
 <?php
-
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreAccount extends FormRequest
+class StoreCompany extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,16 +23,15 @@ class StoreAccount extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|min:3|max:255',
-            'email' => 'required|email|max:191|unique:users',
-            'password' => '',
-            'password_confirm' => 'same:password',
-            'phone' => 'required|min:3|max:255',
+            'email'=>'required|email|unique:company_user',
+            'name' => 'required',
+            'address'=>'required',
+            'phone' => 'required|min:8|max:20',
             'facebook' => 'required',
-            'sex' => 'required',
-            'birth_day' => 'required|date',
-            'permission' => 'required',
-            'id_department' => 'required',
+            'type'=>'required',
+            'date_start' => 'required|date',
+            'date_end' => 'required|date',
+            'date_sell' => 'required|date'
         ];
     }
 }

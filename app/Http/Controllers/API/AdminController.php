@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\API;
 
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreAccount;
 use App\User;
-use Illuminate\Support\Facades\Hash;
-use Psy\Util\Str;
+
 
 class AdminController extends Controller
 {
@@ -25,7 +25,7 @@ class AdminController extends Controller
             'facebook' => ($request->facebook),
             'zalo' => ($request->zalo),
             'id_department' => ($request->id_department),
-            'id_cpny' => ($request->id_cpny),
+            'id_cpny' => Auth::User()->id_cpny,
             'birth_day' => ($request->birth_day),
             'sex' => ($request->sex),
             'permission' => ($request->permission),
@@ -48,35 +48,68 @@ class AdminController extends Controller
     }
     public function destroy($id){
         $user = User::find($id);
-        $user->delete();
-        return response()->json([
-            'message' => 'Successfully delete user!'
-        ],200);
+        if($user->id_cpny == Auth::user()->id_cpny){
+            if(!empty($user))
+                $user->delete();
+            return response()->json([
+                'message' => 'Successfully delete user!'
+            ],200);
+        }
+        else{
+            return response()->json([
+                'message' => 'Permission Denied!'
+            ],400);
+
+        }
     }
-    public function update(Request $request,$id){
+    public function edit(Request $request,$id){
         $user = User::find($id);
-        $user->phone = $request->phone;
-        if(!empty($request->password)){
-            $user->password = bcrypt($request->password);
-        }
-        $user->facebook = $request->facebook;
-        $user->zalo =$request->zalo;
-        $user->id_department = $request->id_department;
-        $user->id_cpny = $request->id_cpny;
-        $user->birth_day = $request->birth_day;
-        $user->sex = $request->sex;
-        $user->permission = $request->permission;
-        if (!empty($file["avatar"]["tmp_name"])) {
-            if (@is_array(getimagesize($file["avatar"]["tmp_name"]))) {
-                unlink('Images/' . $id . '/avatar/' . $user->avatar);
-                move_uploaded_file($file["avatar"]["tmp_name"], 'Images/' . $id . '/avatar/' . $file["avatar"]['name']);
+        $file= $_FILES;
+        if($user->id_cpny == Auth::user()->id_cpny) {
+            $user->phone = $request->phone;
+            if (!empty($request->password)) {
+                $user->password = bcrypt($request->password);
             }
+            $user->facebook = $request->facebook;
+            $user->zalo = $request->zalo;
+            $user->id_department = $request->id_department;
+            $user->id_cpny = $request->id_cpny;
+            $user->birth_day = $request->birth_day;
+            $user->sex = $request->sex;
+            $user->permission = $request->permission;
+            if (!empty($file["avatar"]["tmp_name"])) {
+                if (@is_array(getimagesize($file["avatar"]["tmp_name"]))) {
+                    if (file_exists('Images/' . $id . '/avatar/' . $user->avatar))
+                        unlink('Images/' . $id . '/avatar/' . $user->avatar);
+                    move_uploaded_file($file["avatar"]["tmp_name"], 'Images/' . $id . '/avatar/' . $file["avatar"]['name']);
+                    $user->avatar = $file["avatar"]['name'];
+                }
+            }
+            $user->save();
+            return response()->json([
+                'message' => 'Successfully update user!'
+            ], 200);
         }
-        $user->save();
+        else{
+            return response()->json([
+                'message' => 'Permission Denied!'
+            ],400);
+
+        }
     }
-    public function show($id){
-        return response()->json([
-           User::find($id)
-        ],200);
+    public function show($id)
+    {
+        $user = User::find($id);
+        if ($user->id_cpny == Auth::user()->id_cpny) {
+            return response()->json([
+                User::find($id)
+            ], 200);
+        }
+        else{
+            return response()->json([
+                'message' => 'Permission Denied!'
+            ],400);
+
+        }
     }
 }

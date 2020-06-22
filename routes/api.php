@@ -18,5 +18,12 @@ Route::post('login','API\AuthController@login');
 Route::group(['middleware' => 'auth:api'], function() {
     Route::group(['prefix' => 'admin','middleware' => 'admin'], function () {
         Route::apiResource('member','API\AdminController');
+        Route::post('configuration/{id}','API\ConfigurationController@update');
+        Route::get('configuration/{id}','API\ConfigurationController@show');
+        Route::post('member-edit/{id}','API\AdminController@edit');
+    });
+    Route::group(['prefix' => 'superadmin','middleware' => 'superadmin'], function () {
+        Route::apiResource('company','API\SuperAdminController');
+        Route::post('company-edit/{id}','API\SuperAdminController@edit');
     });
 });
