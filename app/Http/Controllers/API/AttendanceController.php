@@ -16,39 +16,43 @@ use const CV\{COLOR_BGR2GRAY};
 class AttendanceController extends Controller
 {
     public function test(Request $request){
+        $files = scandir("Images/".$request->id."/root");
+        dd($files);
         $faceClassifier = new CascadeClassifier();
         $faceClassifier->load('runphpopencv/models/lbpcascades/lbpcascade_frontalface.xml');
         $faceRecognizer = LBPHFaceRecognizer::create();
         $labels = ['unknown', 'me', 'angelina'];
 
-        $src = imread("runphpopencv/me/me.png");
-        $gray = cvtColor($src, COLOR_BGR2GRAY);
-        $faceClassifier->detectMultiScale($gray, $faces);
-        var_dump($gray);
-        equalizeHist($gray, $gray);
-        dd($gray);
+        $files = scandir("Images/".$request->id."/root");
         $faceImages = $faceLabels = [];
-        foreach ($faces as $k => $face) {
-            $faceImages[] = $gray->getImageROI($face); // face coordinates to image
-            $faceLabels[] = 1;
+        foreach ($files as $key => $file){
+                if ($key>1){
+                $src = imread($file);
+                $gray = cvtColor($src, COLOR_BGR2GRAY);
+                $faceClassifier->detectMultiScale($gray, $faces);
+                equalizeHist($gray, $gray);
+                foreach ($faces as $k => $face) {
+                    $faceImages[] = $gray->getImageROI($face); // face coordinates to image
+                    $faceLabels[] = 1;
+                  }
+            }
         }
         $faceRecognizer->train($faceImages, $faceLabels);
-
         $src = imread($request->image);
         $gray = cvtColor($src, COLOR_BGR2GRAY);
         $faceClassifier->detectMultiScale($gray, $faces);
         equalizeHist($gray, $gray);
         foreach ($faces as $face) {
             $faceImage = $gray->getImageROI($face);
-
             $faceLabel = $faceRecognizer->predict($faceImage, $faceConfidence);
             $scalar = new Scalar(0, 0, 255);
             rectangleByRect($src, $face, $scalar, 2);
             $text = $labels[$faceLabel];
             rectangle($src, $face->x, $face->y, $face->x + ($faceLabel == 1 ? 50 : 130), $face->y - 30, new Scalar(255,255,255), -2);
             putText($src, "$text", new Point($face->x, $face->y - 2), 0, 1.5, new Scalar(), 2);
+            return $faceLabel;
         }
-        imwrite("_recognize_face_by_lbph1.jpg", $src);
+
     }
 
     public function attend(Request $request){
