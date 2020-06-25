@@ -24,8 +24,9 @@ class AttendanceController extends Controller
         $src = imread("runphpopencv/me/me.png");
         $gray = cvtColor($src, COLOR_BGR2GRAY);
         $faceClassifier->detectMultiScale($gray, $faces);
-
+        var_dump($gray);
         equalizeHist($gray, $gray);
+        dd($gray);
         $faceImages = $faceLabels = [];
         foreach ($faces as $k => $face) {
             $faceImages[] = $gray->getImageROI($face); // face coordinates to image
