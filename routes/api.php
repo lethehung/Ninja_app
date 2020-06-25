@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('login','API\AuthController@login');
 Route::group(['middleware' => 'auth:api'], function() {
-    Route::get('test','API\AttendanceController@test');
+    Route::post('test','API\AttendanceController@test');
     Route::post('attdance','API\AttendanceController@attend');
     Route::group(['prefix' => 'admin','middleware' => 'admin'], function () {
         Route::apiResource('member','API\AdminController');

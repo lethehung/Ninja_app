@@ -15,55 +15,34 @@ use const CV\{COLOR_BGR2GRAY};
 
 class AttendanceController extends Controller
 {
-    public function test(){
+    public function test(Request $request){
         $faceClassifier = new CascadeClassifier();
         $faceClassifier->load('runphpopencv/models/lbpcascades/lbpcascade_frontalface.xml');
-
         $faceRecognizer = LBPHFaceRecognizer::create();
-
         $labels = ['unknown', 'me', 'angelina'];
 
-// me
         $src = imread("runphpopencv/me/me.png");
         $gray = cvtColor($src, COLOR_BGR2GRAY);
         $faceClassifier->detectMultiScale($gray, $faces);
-        var_export($faces);
 
         equalizeHist($gray, $gray);
         $faceImages = $faceLabels = [];
         foreach ($faces as $k => $face) {
             $faceImages[] = $gray->getImageROI($face); // face coordinates to image
-            $faceLabels[] = 1; // me
+            $faceLabels[] = 1;
         }
         $faceRecognizer->train($faceImages, $faceLabels);
-// angelina
-        $src = imread("runphpopencv/images/angelina_faces.png");
-        $gray = cvtColor($src, COLOR_BGR2GRAY);
-        $faceClassifier->detectMultiScale($gray, $faces);
-        var_export($faces);
-        equalizeHist($gray, $gray);
-        $faceImages = $faceLabels = [];
-        foreach ($faces as $k => $face) {
-            $faceImages[] = $gray->getImageROI($face); // face coordinates to image
-            $faceLabels[] = 2; // Angelina
-        }
-        $faceRecognizer->update($faceImages, $faceLabels);
 
-
-        $src = imread("runphpopencv/images/angelina_and_me.png");
+        $src = imread($request->image);
         $gray = cvtColor($src, COLOR_BGR2GRAY);
         $faceClassifier->detectMultiScale($gray, $faces);
         equalizeHist($gray, $gray);
         foreach ($faces as $face) {
             $faceImage = $gray->getImageROI($face);
 
-            //predict
             $faceLabel = $faceRecognizer->predict($faceImage, $faceConfidence);
-            echo "{$faceLabel}, {$faceConfidence}\n";
-
             $scalar = new Scalar(0, 0, 255);
             rectangleByRect($src, $face, $scalar, 2);
-
             $text = $labels[$faceLabel];
             rectangle($src, $face->x, $face->y, $face->x + ($faceLabel == 1 ? 50 : 130), $face->y - 30, new Scalar(255,255,255), -2);
             putText($src, "$text", new Point($face->x, $face->y - 2), 0, 1.5, new Scalar(), 2);
