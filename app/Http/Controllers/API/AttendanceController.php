@@ -10,7 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 use CV\Face\LBPHFaceRecognizer, CV\CascadeClassifier, CV\Scalar, CV\Point;
-use function CV\{imread, cvtColor, equalizeHist};
+use function CV\{imread, cvtColor, equalizeHist, rectangleByRect, rectangle, putText};
 use const CV\{COLOR_BGR2GRAY};
 
 class AttendanceController extends Controller
