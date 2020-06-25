@@ -16,11 +16,14 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('login','API\AuthController@login');
 Route::group(['middleware' => 'auth:api'], function() {
+    Route::post('attdance','API\AttendanceController@attend');
     Route::group(['prefix' => 'admin','middleware' => 'admin'], function () {
         Route::apiResource('member','API\AdminController');
         Route::post('configuration/{id}','API\ConfigurationController@update');
         Route::get('configuration/{id}','API\ConfigurationController@show');
         Route::post('member-edit/{id}','API\AdminController@edit');
+        Route::post('check','API\AttendanceController@checkAll');
+        Route::post('check/{id}','API\AttendanceController@check');
     });
     Route::group(['prefix' => 'superadmin','middleware' => 'superadmin'], function () {
         Route::apiResource('company','API\SuperAdminController');
