@@ -27,7 +27,7 @@ class AttendanceController extends Controller
         $faceImages = $faceLabels = [];
         foreach ($files as $key => $file){
                 if ($key>1){
-                $src = imread($file);
+                $src = imread("Images/".$request->id."/root/".$file);
                 $gray = cvtColor($src, COLOR_BGR2GRAY);
                 $faceClassifier->detectMultiScale($gray, $faces);
                 equalizeHist($gray, $gray);
