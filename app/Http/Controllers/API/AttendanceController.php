@@ -17,14 +17,14 @@ class AttendanceController extends Controller
 {
     public function test(){
         $faceClassifier = new CascadeClassifier();
-        $faceClassifier->load('models/lbpcascades/lbpcascade_frontalface.xml');
+        $faceClassifier->load('runphpopencv/models/lbpcascades/lbpcascade_frontalface.xml');
 
         $faceRecognizer = LBPHFaceRecognizer::create();
 
         $labels = ['unknown', 'me', 'angelina'];
 
 // me
-        $src = imread("/mnt/me/1.jpg");
+        $src = imread("runphpopencv/me/1.jpg");
         $gray = cvtColor($src, COLOR_BGR2GRAY);
         $faceClassifier->detectMultiScale($gray, $faces);
 
@@ -33,12 +33,12 @@ class AttendanceController extends Controller
         foreach ($faces as $k => $face) {
             $faceImages[] = $gray->getImageROI($face); // face coordinates to image
             $faceLabels[] = 1; // me
-            cv\imwrite("me2.jpg", $gray->getImageROI($face));
+            cv\imwrite("runphpopencv/me2.jpg", $gray->getImageROI($face));
         }
-
+        dd();
         $faceRecognizer->train($faceImages, $faceLabels);
 // angelina
-        $src = imread("images/angelina_faces.png");
+        $src = imread("runphpopencv/images/angelina_faces.png");
         $gray = cvtColor($src, COLOR_BGR2GRAY);
         $faceClassifier->detectMultiScale($gray, $faces);
         var_export($faces);
