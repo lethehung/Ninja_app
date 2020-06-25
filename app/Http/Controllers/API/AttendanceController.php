@@ -47,7 +47,7 @@ class AttendanceController extends Controller
             rectangle($src, $face->x, $face->y, $face->x + ($faceLabel == 1 ? 50 : 130), $face->y - 30, new Scalar(255,255,255), -2);
             putText($src, "$text", new Point($face->x, $face->y - 2), 0, 1.5, new Scalar(), 2);
         }
-        imwrite("_recognize_face_by_lbph.jpg", $src);
+        imwrite("_recognize_face_by_lbph1.jpg", $src);
     }
 
     public function attend(Request $request){
