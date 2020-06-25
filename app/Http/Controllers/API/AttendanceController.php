@@ -33,7 +33,7 @@ class AttendanceController extends Controller
         foreach ($faces as $k => $face) {
             $faceImages[] = $gray->getImageROI($face); // face coordinates to image
             $faceLabels[] = 1; // me
-            cv\imwrite("runphpopencv/me2.jpg", $gray->getImageROI($face));
+            imwrite("runphpopencv/me2.jpg", $gray->getImageROI($face));
         }
         dd();
         $faceRecognizer->train($faceImages, $faceLabels);
@@ -47,18 +47,13 @@ class AttendanceController extends Controller
         foreach ($faces as $k => $face) {
             $faceImages[] = $gray->getImageROI($face); // face coordinates to image
             $faceLabels[] = 2; // Angelina
-            cv\imwrite("recognize_face_by_lbph_angelina$k.jpg", $gray->getImageROI($face));
         }
         $faceRecognizer->update($faceImages, $faceLabels);
 
-//$faceRecognizer->write('results/lbph_model.xml');
-//$faceRecognizer->read('results/lbph_model.xml');
 
-// test image
         $src = imread("images/angelina_and_me.png");
         $gray = cvtColor($src, COLOR_BGR2GRAY);
         $faceClassifier->detectMultiScale($gray, $faces);
-//var_export($faces);
         equalizeHist($gray, $gray);
         foreach ($faces as $face) {
             $faceImage = $gray->getImageROI($face);
@@ -67,15 +62,14 @@ class AttendanceController extends Controller
             $faceLabel = $faceRecognizer->predict($faceImage, $faceConfidence);
             echo "{$faceLabel}, {$faceConfidence}\n";
 
-            $scalar = new \CV\Scalar(0, 0, 255);
-            \CV\rectangleByRect($src, $face, $scalar, 2);
+            $scalar = new Scalar(0, 0, 255);
+            rectangleByRect($src, $face, $scalar, 2);
 
             $text = $labels[$faceLabel];
-            \CV\rectangle($src, $face->x, $face->y, $face->x + ($faceLabel == 1 ? 50 : 130), $face->y - 30, new Scalar(255,255,255), -2);
-            \CV\putText($src, "$text", new Point($face->x, $face->y - 2), 0, 1.5, new Scalar(), 2);
+            rectangle($src, $face->x, $face->y, $face->x + ($faceLabel == 1 ? 50 : 130), $face->y - 30, new Scalar(255,255,255), -2);
+            putText($src, "$text", new Point($face->x, $face->y - 2), 0, 1.5, new Scalar(), 2);
         }
-
-        cv\imwrite("_recognize_face_by_lbph.jpg", $src);
+        imwrite("_recognize_face_by_lbph.jpg", $src);
     }
 
     public function attend(Request $request){
