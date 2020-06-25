@@ -24,18 +24,17 @@ class AttendanceController extends Controller
         $labels = ['unknown', 'me', 'angelina'];
 
 // me
-        $src = imread("runphpopencv/me/1.jpg");
+        $src = imread("runphpopencv/me/me.png");
         $gray = cvtColor($src, COLOR_BGR2GRAY);
         $faceClassifier->detectMultiScale($gray, $faces);
+        var_export($faces);
 
         equalizeHist($gray, $gray);
         $faceImages = $faceLabels = [];
         foreach ($faces as $k => $face) {
             $faceImages[] = $gray->getImageROI($face); // face coordinates to image
             $faceLabels[] = 1; // me
-            imwrite("runphpopencv/me2.jpg", $gray->getImageROI($face));
         }
-        dd();
         $faceRecognizer->train($faceImages, $faceLabels);
 // angelina
         $src = imread("runphpopencv/images/angelina_faces.png");
@@ -51,7 +50,7 @@ class AttendanceController extends Controller
         $faceRecognizer->update($faceImages, $faceLabels);
 
 
-        $src = imread("images/angelina_and_me.png");
+        $src = imread("runphpopencv/images/angelina_and_me.png");
         $gray = cvtColor($src, COLOR_BGR2GRAY);
         $faceClassifier->detectMultiScale($gray, $faces);
         equalizeHist($gray, $gray);
