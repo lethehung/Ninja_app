@@ -55,13 +55,14 @@ class AdminController extends Controller
                     }
                 }
                 if($i = 1){
-                    $facetest = $facemax;
+                    $facetest = $gray->getImageROI($facemax);
                 }
                 $faceImages[] = $gray->getImageROI($facemax);
                 $faceLabels[] = 3;
         }
-        $faceRecognizer::read('name.txt');
-        $faceRecognizer::update($faceImages,$faceLabels);
+        $faceRecognizer->read('name.txt');
+        $faceRecognizer->update($faceImages,$faceLabels);
+
         $faceLabel = $faceRecognizer->predict($facetest, $faceConfidence);
         if($faceLabel == 3) {
             return response()->json([
