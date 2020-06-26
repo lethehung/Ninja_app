@@ -69,7 +69,6 @@ class AdminController extends Controller
             return response()->json([
                 'message' => 'Try again'
             ],200);
-            die();
         }
         $faceRecognizer = LBPHFaceRecognizer::create();
         $faceRecognizer->read('faceRecogziner.txt');
