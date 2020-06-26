@@ -55,7 +55,7 @@ class AdminController extends Controller
                         $facemax = $face;
                     }
                 }
-                if($i = 1){
+                if($i == 1){
                     $facetest = $gray->getImageROI($facemax);
                 }
                 $faceImages[] = $gray->getImageROI($facemax);
