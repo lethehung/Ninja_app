@@ -42,7 +42,8 @@ class AdminController extends Controller
         $faceImages = $faceLabels = [];
         $facetest=null;
         for ($i=1 ;$i <6; $i++){
-                $src = imread($request->images.$i);
+                $image = "images".$i;
+                $src = imread($request->$image);
                 $gray = cvtColor($src, COLOR_BGR2GRAY);
                 $faceClassifier->detectMultiScale($gray, $faces);
                 equalizeHist($gray, $gray);
