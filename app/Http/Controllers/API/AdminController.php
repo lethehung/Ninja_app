@@ -70,12 +70,10 @@ class AdminController extends Controller
                 'message' => 'Try again'
             ],200);
         }
-        $faceRecognizer = LBPHFaceRecognizer::create();
-        $faceRecognizer->read('faceRecogziner.txt');
-        $faceRecognizer->update($faceImages,$faceLabels);
-        $faceRecognizer->write('faceRecogziner.txt');
         $user->save();
         $id = $user->id;
+
+
         mkdir('Images/' . $id . '/avatar', 0777, true);
         mkdir('Images/' . $id . '/train', 0777, true);
         mkdir('Images/' . $id . '/root', 0777, true);
@@ -98,9 +96,14 @@ class AdminController extends Controller
                     $facemax = $face;
                 }
             }
+            $faceLabels1[] = $id;
             imwrite('Images/' . $id . '/train/image'.$i.'.jpg',$gray->getImageROI($facemax));
             move_uploaded_file($request->$image, 'Images/' . $id . '/root/image'.$i .'.jpg');
         }
+        $faceRecognizer = LBPHFaceRecognizer::create();
+        $faceRecognizer->read('faceRecogziner.txt');
+        $faceRecognizer->update($faceImages,$faceLabels1);
+        $faceRecognizer->write('faceRecogziner.txt');
         $user->avatar = $file["avatar"]["name"];
         $user->save();
         return response()->json([
