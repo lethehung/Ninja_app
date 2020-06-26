@@ -67,8 +67,8 @@ class AttendanceController extends Controller
             }
         }
         $faceRecognizer->update($faceImages, $faceLabels);
+        $faceRecognizer->write('name.txt');
         $file = 'people.txt';
-        file_put_contents($file, $faceRecognizer);
         $src = imread($request->image);
         $gray = cvtColor($src, COLOR_BGR2GRAY);
         $faceClassifier->detectMultiScale($gray, $faces);
