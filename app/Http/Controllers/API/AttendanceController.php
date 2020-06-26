@@ -35,6 +35,7 @@ class AttendanceController extends Controller
                 $Acreage = 0;
                 foreach ($faces as $k => $face) {
                     if($face->height*$face->width > $Acreage){
+                        $Acreage = $face->height*$face->width;
                         $facemax = $face;
                     }
                   }
@@ -43,10 +44,12 @@ class AttendanceController extends Controller
                     imwrite("recognize_face_by_lbph_angelina$k$key.jpg", $gray->getImageROI($face));
             }
         }
+        $faceRecognizer->train($faceImages, $faceLabels);
         $files = scandir("Images/31/root");
+        $faceImages = $faceLabels = [];
         foreach ($files as $key => $file){
             if ($key>1){
-                $src = imread("Images/".$request->id."/root/".$file);
+                $src = imread("Images/31/root/".$file);
                 $gray = cvtColor($src, COLOR_BGR2GRAY);
                 $faceClassifier->detectMultiScale($gray, $faces);
                 equalizeHist($gray, $gray);
@@ -54,29 +57,32 @@ class AttendanceController extends Controller
                 $Acreage = 0;
                 foreach ($faces as $k => $face) {
                     if($face->height*$face->width > $Acreage){
+                        $Acreage = $face->height*$face->width;
                         $facemax = $face;
                     }
                 }
                 $faceImages[] = $gray->getImageROI($facemax);
                 $faceLabels[] = 2;
-                imwrite("recognize_face_by_lbph_angelina$key.jpg", $gray->getImageROI($face));
+                imwrite("recognize_face_by_lbph_angelina$key.jpg", $gray->getImageROI($facemax));
             }
         }
-        $faceRecognizer->train($faceImages, $faceLabels);
+        $faceRecognizer->update($faceImages, $faceLabels);
         $src = imread($request->image);
         $gray = cvtColor($src, COLOR_BGR2GRAY);
         $faceClassifier->detectMultiScale($gray, $faces);
         equalizeHist($gray, $gray);
+        $facemax = null;
+        $Acreage = 0;
         foreach ($faces as $face) {
-            $faceImage = $gray->getImageROI($face);
-            $faceLabel = $faceRecognizer->predict($faceImage, $faceConfidence);
-            $scalar = new Scalar(0, 0, 255);
-            rectangleByRect($src, $face, $scalar, 2);
-            $text = $labels[$faceLabel];
-            rectangle($src, $face->x, $face->y, $face->x + ($faceLabel == 1 ? 50 : 130), $face->y - 30, new Scalar(255,255,255), -2);
-            putText($src, "$text", new Point($face->x, $face->y - 2), 0, 1.5, new Scalar(), 2);
-            return $faceLabel;
+                if($face->height*$face->width > $Acreage){
+                    $Acreage = $face->height*$face->width;
+                    $facemax = $face;
+                }
         }
+        $faceImage = $gray->getImageROI($facemax);
+        $faceLabel = $faceRecognizer->predict($faceImage, $faceConfidence);
+        imwrite("result.jpg", $gray->getImageROI($face));
+        return $faceLabel;
 
     }
 
