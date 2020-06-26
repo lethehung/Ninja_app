@@ -17,62 +17,9 @@ class AttendanceController extends Controller
 {
     public function test(Request $request){
         $files = scandir("Images/".$request->id."/root");
-
-        $faceClassifier = new CascadeClassifier();
-        $faceClassifier->load('runphpopencv/models/lbpcascades/lbpcascade_frontalface.xml');
-        $faceRecognizer = LBPHFaceRecognizer::create();
-        $labels = ['unknown', 'me', 'angelina'];
-
-        $files = scandir("Images/".$request->id."/root");
-        $faceImages = $faceLabels = [];
-        foreach ($files as $key => $file){
-                if ($key>1){
-                $src = imread("Images/".$request->id."/root/".$file);
-                $gray = cvtColor($src, COLOR_BGR2GRAY);
-                $faceClassifier->detectMultiScale($gray, $faces);
-                equalizeHist($gray, $gray);
-                $facemax = null;
-                $Acreage = 0;
-                foreach ($faces as $k => $face) {
-                    if($face->height*$face->width > $Acreage){
-                        $Acreage = $face->height*$face->width;
-                        $facemax = $face;
-                    }
-                  }
-                    $faceImages[] = $gray->getImageROI($facemax);
-                    $faceLabels[] = 1;
-                    imwrite("recognize_face_by_lbph_angelina$k$key.jpg", $gray->getImageROI($face));
-            }
-        }
-        $faceRecognizer->train($faceImages, $faceLabels);
-        $files = scandir("Images/31/root");
-        $faceImages = $faceLabels = [];
-        foreach ($files as $key => $file){
-            if ($key>1){
-                $src = imread("Images/31/root/".$file);
-                $gray = cvtColor($src, COLOR_BGR2GRAY);
-                $faceClassifier->detectMultiScale($gray, $faces);
-                equalizeHist($gray, $gray);
-                $facemax = null;
-                $Acreage = 0;
-                foreach ($faces as $k => $face) {
-                    if($face->height*$face->width > $Acreage){
-                        $Acreage = $face->height*$face->width;
-                        $facemax = $face;
-                    }
-                }
-                $faceImages[] = $gray->getImageROI($facemax);
-                $faceLabels[] = 2;
-                imwrite("recognize_face_by_lbph_angelina$key.jpg", $gray->getImageROI($facemax));
-            }
-        }
-        $faceRecognizer->update($faceImages, $faceLabels);
-        $myfile = fopen("names.txt", "w");
-        fwrite($myfile, $faceRecognizer);
-        dd();
         $src = imread($request->image);
         $gray = cvtColor($src, COLOR_BGR2GRAY);
-        $faceClassifier->detectMultiScale($gray, $faces);
+        $this->faceClassifier->detectMultiScale($gray, $faces);
         equalizeHist($gray, $gray);
         $facemax = null;
         $Acreage = 0;
@@ -83,10 +30,9 @@ class AttendanceController extends Controller
                 }
         }
         $faceImage = $gray->getImageROI($facemax);
-        $faceLabel = $faceRecognizer->predict($faceImage, $faceConfidence);
+        $faceLabel = $this->faceRecognizer->predict($faceImage, $faceConfidence);
         imwrite("result.jpg", $gray->getImageROI($face));
         return $faceLabel;
-
     }
 
     public function attend(Request $request){
