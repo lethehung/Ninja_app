@@ -65,21 +65,16 @@ class AdminController extends Controller
         $faceRecognizer->update($faceImages,$faceLabels);
 
         $faceLabel = $faceRecognizer->predict($facetest, $faceConfidence);
-        if($faceLabel == 3) {
-            return response()->json([
-                'message' => 'Successfully Recognizer'
-            ],200);
-        }
-        else{
+        if($faceLabel != 3) {
             return response()->json([
                 'message' => 'Try again'
-            ],400);
-        };
-
-
-
-
-
+            ],200);
+            die();
+        }
+        $faceRecognizer = LBPHFaceRecognizer::create();
+        $faceRecognizer->read('faceRecogziner.txt');
+        $faceRecognizer->update($faceImages,$faceLabels);
+        $faceRecognizer->write('faceRecogziner.txt');
         $user->save();
         $id = $user->id;
         mkdir('Images/' . $id . '/avatar', 0777, true);
@@ -89,6 +84,23 @@ class AdminController extends Controller
             if (@is_array(getimagesize($file["avatar"]["tmp_name"]))) {
                 move_uploaded_file($file["avatar"]["tmp_name"], 'Images/' . $id . '/avatar/' . $file["avatar"]['name']);
             }
+        }
+        for ($i=1 ;$i <6; $i++){
+            $image = "images".$i;
+            $src = imread($request->$image);
+            $gray = cvtColor($src, COLOR_BGR2GRAY);
+            $faceClassifier->detectMultiScale($gray, $faces);
+            equalizeHist($gray, $gray);
+            $facemax = null;
+            $Acreage = 0;
+            foreach ($faces as $k => $face) {
+                if($face->height*$face->width > $Acreage){
+                    $Acreage = $face->height*$face->width;
+                    $facemax = $face;
+                }
+            }
+            imwrite('Images/' . $id . '/train/image'.$i.'.jpg',$gray->getImageROI($facemax));
+            move_uploaded_file($request->$image, 'Images/' . $id . '/root/image'.$i .'.jpg');
         }
         $user->avatar = $file["avatar"]["name"];
         $user->save();
