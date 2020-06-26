@@ -2,11 +2,16 @@
 
 namespace App\Http\Controllers\API;
 
+use http\Env\Response;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreAccount;
 use App\User;
+
+use CV\Face\LBPHFaceRecognizer, CV\CascadeClassifier, CV\Scalar, CV\Point;
+use function CV\{imread,imwrite, cvtColor, equalizeHist, rectangleByRect, rectangle, putText};
+use const CV\{COLOR_BGR2GRAY};
 
 
 class AdminController extends Controller
@@ -30,6 +35,49 @@ class AdminController extends Controller
             'sex' => ($request->sex),
             'permission' => ($request->permission),
         ]);
+
+        $faceClassifier = new CascadeClassifier();
+        $faceClassifier->load('runphpopencv/models/lbpcascades/lbpcascade_frontalface.xml');
+        $faceRecognizer = LBPHFaceRecognizer::create();
+        $faceImages = $faceLabels = [];
+        $facetest=null;
+        for ($i=1 ;$i <6; $i++){
+                $src = imread($request->images.$i);
+                $gray = cvtColor($src, COLOR_BGR2GRAY);
+                $faceClassifier->detectMultiScale($gray, $faces);
+                equalizeHist($gray, $gray);
+                $facemax = null;
+                $Acreage = 0;
+                foreach ($faces as $k => $face) {
+                    if($face->height*$face->width > $Acreage){
+                        $Acreage = $face->height*$face->width;
+                        $facemax = $face;
+                    }
+                }
+                if($i = 1){
+                    $facetest = $facemax;
+                }
+                $faceImages[] = $gray->getImageROI($facemax);
+                $faceLabels[] = 3;
+        }
+        $faceRecognizer::read('name.txt');
+        $faceRecognizer::update($faceImages,$faceLabels);
+        $faceLabel = $faceRecognizer->predict($facetest, $faceConfidence);
+        if($faceLabel == 3) {
+            return response()->json([
+                'message' => 'Successfully Recognizer'
+            ],200);
+        }
+        else{
+            return response()->json([
+                'message' => 'Try again'
+            ],400);
+        };
+
+
+
+
+
         $user->save();
         $id = $user->id;
         mkdir('Images/' . $id . '/avatar', 0777, true);
