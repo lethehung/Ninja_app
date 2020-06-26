@@ -38,9 +38,28 @@ class AttendanceController extends Controller
                         $facemax = $face;
                     }
                   }
-                    $faceImages[] = $gray->getImageROI($face);
+                    $faceImages[] = $gray->getImageROI($facemax);
                     $faceLabels[] = 1;
                     imwrite("recognize_face_by_lbph_angelina$k$key.jpg", $gray->getImageROI($face));
+            }
+        }
+        $files = scandir("Images/31/root");
+        foreach ($files as $key => $file){
+            if ($key>1){
+                $src = imread("Images/".$request->id."/root/".$file);
+                $gray = cvtColor($src, COLOR_BGR2GRAY);
+                $faceClassifier->detectMultiScale($gray, $faces);
+                equalizeHist($gray, $gray);
+                $facemax = null;
+                $Acreage = 0;
+                foreach ($faces as $k => $face) {
+                    if($face->height*$face->width > $Acreage){
+                        $facemax = $face;
+                    }
+                }
+                $faceImages[] = $gray->getImageROI($facemax);
+                $faceLabels[] = 2;
+                imwrite("recognize_face_by_lbph_angelina$key.jpg", $gray->getImageROI($face));
             }
         }
         $faceRecognizer->train($faceImages, $faceLabels);
