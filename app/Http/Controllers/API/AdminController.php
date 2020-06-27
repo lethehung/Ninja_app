@@ -62,7 +62,7 @@ class AdminController extends Controller
             $response = json_decode($response);
         }
         if($response->message != "Tổng mặt: 40"){
-            return reponse()->json([
+            return response()->json([
                 "message" => "Not identified enough"
             ],200);
         }
@@ -92,7 +92,7 @@ class AdminController extends Controller
             $response = json_decode($response);
         }
         if($response->message != "Đã tìm thấy"){
-            return reponse()->json([
+            return response()->json([
                 "message" => "Failure identification"
             ],200);
             die();
