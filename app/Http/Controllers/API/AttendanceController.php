@@ -147,6 +147,7 @@ class AttendanceController extends Controller
                $image[] = "http://34.80.218.62/".'Images/'.$request->id.'/train/'.$val["name"];
            }
         }
+        $this->checkIdentification($image,$request->id);
         if($this->checkIdentification($image,$request->id)){
             return response()->json(['message'=>'Successfully Identification'],200);
         }
