@@ -23,12 +23,6 @@ class AdminController extends Controller
         $file = $_FILES;
         $listpic =array();
 
-        foreach ($file as $k => $value){
-            if(!empty($value["tmp_name"])){
-                move_uploaded_file($value["tmp_name"], 'Images/Test/' . $value['name']);
-                $listpic[] = "http://34.80.218.62/Images/Test/" . $value['name'];
-            }
-        }
         $folder = 'Images/Test';
         $files = glob($folder . '/*');
         foreach($files as $file1){
@@ -36,6 +30,14 @@ class AdminController extends Controller
                 unlink($file1);
             }
         }
+
+        foreach ($file as $k => $value){
+            if(!empty($value["tmp_name"])){
+                move_uploaded_file($value["tmp_name"], 'Images/Test/' . $value['name']);
+                $listpic[] = "http://34.80.218.62/Images/Test/" . $value['name'];
+            }
+        }
+
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
