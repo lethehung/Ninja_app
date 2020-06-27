@@ -18,6 +18,7 @@ Route::post('login','API\AuthController@login');
 Route::group(['middleware' => 'auth:api'], function() {
     Route::post('test','API\AttendanceController@test');
     Route::post('attdance','API\AttendanceController@attend');
+
     Route::group(['prefix' => 'admin','middleware' => 'admin'], function () {
         Route::post('create','API\AdminController@createTestAPI');
         Route::apiResource('member','API\AdminController');
@@ -27,6 +28,14 @@ Route::group(['middleware' => 'auth:api'], function() {
         Route::post('check','API\AttendanceController@checkAll');
         Route::post('check/{id}','API\AttendanceController@check');
     });
+
+
+
+    Route::group(['prefix' => 'superadmin','middleware' => 'superadmin'], function () {
+        Route::apiResource('company','API\SuperAdminController');
+        Route::post('company-edit/{id}','API\SuperAdminController@edit');
+    });
+
     Route::group(['prefix' => 'superadmin','middleware' => 'superadmin'], function () {
         Route::apiResource('company','API\SuperAdminController');
         Route::post('company-edit/{id}','API\SuperAdminController@edit');

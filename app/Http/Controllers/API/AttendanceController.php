@@ -15,13 +15,115 @@ use const CV\{COLOR_BGR2GRAY};
 
 class AttendanceController extends Controller
 {
+    public function getCountImage($id){
+        $file = $_FILES;
+        $listpic =array();
+
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "http://unlockv3.ninjateam.vn/api/NinjaUnlock/CountPicture",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => '{"name": "'.$id.'"}',
+            CURLOPT_HTTPHEADER => array(
+                "content-type: application/json"
+            ),
+        ));
+
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+        curl_close($curl);
+        if ($err) {
+            echo "cURL Error #:" . $err;
+        } else {
+            $response = json_decode($response);
+        }
+        if($response->count <= 5) {
+            return response()->json([
+                "message" => "Not identified enough"
+            ], 401);
+        }
+        else return true;
+    }
+    public function checkIdentification($image,$id){
+        $file = $_FILES;
+        $listpic =array();
+
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "http://unlockv3.ninjateam.vn/api/NinjaUnlock/DetechPicture",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => '{"name": "'.$id.'","list_pic": '.json_encode($image).' }',
+            CURLOPT_HTTPHEADER => array(
+                "content-type: application/json"
+            ),
+        ));
+
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+        curl_close($curl);
+        if ($err) {
+            echo "cURL Error #:" . $err;
+        } else {
+            $response = json_decode($response);
+        }
+        if($response->count != 5) {
+            return response()->json([
+                "message" => "Not identified enough"
+            ], 401);
+        }
+
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "http://unlockv3.ninjateam.vn/api/NinjaUnlock/SeachPicture",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => '{"name": "test","pic":"'.$image[0].'" }',
+            CURLOPT_HTTPHEADER => array(
+                "content-type: application/json"
+            ),
+        ));
+
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+        curl_close($curl);
+        if ($err) {
+            echo "cURL Error #:" . $err;
+        } else {
+            $response = json_decode($response);
+        }
+        if($response->status == false){
+            return response()->json([
+                "message" => "Failure identification"
+            ],200);
+            die();
+        }
+        else
+            return true;
+
+    }
+
     public function test(Request $request){
+        $checkcout = $this->getCountImage($request->id);
+        dd($checkcout);
         $file_dic ="";
         if(!empty($_FILES["image"]["tmp_name"])){
             $file_dic = "Images/Test/".$_FILES["image"]["name"];
             move_uploaded_file($_FILES["image"]["tmp_name"],$file_dic);
         }
-
         $curl = curl_init();
         curl_setopt_array($curl, array(
             CURLOPT_URL => "http://unlockv3.ninjateam.vn/api/NinjaUnlock/SeachPicture",

@@ -21,84 +21,6 @@ class AdminController extends Controller
     }
     public function createTestAPI(StoreAccount $request){
         $file = $_FILES;
-        $listpic =array();
-
-        $folder = 'Images/Test';
-        $files = glob($folder . '/*');
-        foreach($files as $file1){
-            if(is_file($file1)){
-                unlink($file1);
-            }
-        }
-
-        foreach ($file as $k => $value){
-            if(!empty($value["tmp_name"])){
-                move_uploaded_file($value["tmp_name"], 'Images/Test/' . $value['name']);
-                $listpic[] = "http://34.80.218.62/Images/Test/" . $value['name'];
-            }
-        }
-
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => "http://unlockv3.ninjateam.vn/api/NinjaUnlock/DetechPicture",
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => '{"name": "test","list_pic":'.json_encode($listpic).' }',
-            CURLOPT_HTTPHEADER => array(
-                "content-type: application/json"
-            ),
-        ));
-
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-        curl_close($curl);
-        if ($err) {
-            echo "cURL Error #:" . $err;
-        } else {
-            $response = json_decode($response);
-        }
-        if($response->message != "Tổng mặt: 40"){
-            return response()->json([
-                "message" => "Not identified enough"
-            ],200);
-        }
-
-
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => "http://unlockv3.ninjateam.vn/api/NinjaUnlock/SeachPicture",
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => '{"name": "test","pic":'.json_encode($listpic[0]).' }',
-            CURLOPT_HTTPHEADER => array(
-                "content-type: application/json"
-            ),
-        ));
-
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-        curl_close($curl);
-        if ($err) {
-            echo "cURL Error #:" . $err;
-        } else {
-            $response = json_decode($response);
-        }
-        if($response->message != "Đã tìm thấy"){
-            return response()->json([
-                "message" => "Failure identification"
-            ],200);
-            die();
-        }
-
-        $file = $_FILES;
         $user = new User([
             'phone' => $request->phone,
             'name' => $request->name,
@@ -114,38 +36,7 @@ class AdminController extends Controller
         ]);
         $user->save();
         $id = $user->id;
-
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => "http://unlockv3.ninjateam.vn/api/NinjaUnlock/DetechPicture",
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => '{"name": "'.$id.'","list_pic":'.json_encode($listpic).' }',
-            CURLOPT_HTTPHEADER => array(
-                "content-type: application/json"
-            ),
-        ));
-
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-        curl_close($curl);
-        if ($err) {
-            echo "cURL Error #:" . $err;
-        } else {
-            $response = json_decode($response);
-        }
-
         mkdir('Images/' . $id . '/avatar', 0777, true);
-        if (!empty($file["avatar"]["tmp_name"])) {
-            if (@is_array(getimagesize($file["avatar"]["tmp_name"]))) {
-                move_uploaded_file($file["avatar"]["tmp_name"], 'Images/' . $id . '/avatar/' . $file["avatar"]['name']);
-            }
-        }
-        $user->avatar = $file["avatar"]["name"];
         $user->save();
         return response()->json([
             'message' => 'Successfully created user!'
