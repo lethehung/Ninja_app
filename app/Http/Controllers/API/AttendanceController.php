@@ -43,9 +43,7 @@ class AttendanceController extends Controller
             $response = json_decode($response);
         }
         if($response->count <= 5) {
-            return response()->json([
-                "message" => "Not identified enough"
-            ], 401);
+           return false;
         }
         else return true;
     }
