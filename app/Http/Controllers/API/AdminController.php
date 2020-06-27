@@ -20,24 +20,22 @@ class AdminController extends Controller
         return response()->json([User::all()],200);
     }
     public function createTestAPI(Request $request){
-        $listpic = array();
         $file = $_FILES;
+        $listpic =array();
+
+        foreach ($file as $k => $value){
+            if(!empty($value["tmp_name"])){
+                move_uploaded_file($value["tmp_name"], 'Images/Test/' . $value['name']);
+                $listpic[] = "http://34.80.218.62/Images/Test/" . $value['name'];
+            }
+        }
         $folder = 'Images/Test';
         $files = glob($folder . '/*');
-        foreach($files as $file){
-            if(is_file($file)){
-                unlink($file);
+        foreach($files as $file1){
+            if(is_file($file1)){
+                unlink($file1);
             }
         }
-        for ($i=1 ;$i < 6; $i++){
-            $image = "images".$i;
-            if (!empty($file[$image]["tmp_name"])) {
-                move_uploaded_file($file[$image]["tmp_name"], 'Images/Test/' . $file[$image]['name']);
-                $listpic[] = "http://34.80.218.62/public/Images/Test/".$file[$image]['name'];
-            }
-        }
-
-        dd();
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
