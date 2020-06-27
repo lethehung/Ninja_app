@@ -39,7 +39,6 @@ class AdminController extends Controller
         }
 
         $curl = curl_init();
-
         curl_setopt_array($curl, array(
             CURLOPT_URL => "http://unlockv3.ninjateam.vn/api/NinjaUnlock/DetechPicture",
             CURLOPT_RETURNTRANSFER => true,
@@ -56,21 +55,48 @@ class AdminController extends Controller
 
         $response = curl_exec($curl);
         $err = curl_error($curl);
-
         curl_close($curl);
-
         if ($err) {
             echo "cURL Error #:" . $err;
         } else {
-            echo $response;
             $response = json_decode($response);
         }
+        if($response->message != "Tổng mặt: 40"){
+            return reponse()->json([
+                "message" => "Not identified enough"
+            ],200);
+        }
 
-dd($response);
 
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "http://unlockv3.ninjateam.vn/api/NinjaUnlock/SeachPicture",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => '{"name": "test","pic":'.json_encode($listpic[0]).' }',
+            CURLOPT_HTTPHEADER => array(
+                "content-type: application/json"
+            ),
+        ));
 
-
-
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+        curl_close($curl);
+        if ($err) {
+            echo "cURL Error #:" . $err;
+        } else {
+            $response = json_decode($response);
+        }
+        dd($response);
+        if($response->message != "Tổng mặt: 5"){
+            return reponse()->json([
+                "message" => "Not identified enough"
+            ],200);
+        }
 
         $file = $_FILES;
         $user = new User([
