@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Route;
 Route::post('login','API\AuthController@login');
 Route::group(['middleware' => 'auth:api'], function() {
     Route::post('test','API\AttendanceController@test');
+    Route::post('Identification','API\AttendanceController@createFolder');
     Route::post('attdance','API\AttendanceController@attend');
 
     Route::group(['prefix' => 'admin','middleware' => 'admin'], function () {
