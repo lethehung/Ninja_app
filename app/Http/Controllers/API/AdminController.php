@@ -19,6 +19,150 @@ class AdminController extends Controller
     public function index(){
         return response()->json([User::all()],200);
     }
+    public function createTestAPI(Request $request){
+        $listpic = array();
+        $file = $_FILES;
+        $folder = 'Images/Test';
+        $files = glob($folder . '/*');
+        foreach($files as $file){
+            if(is_file($file)){
+                unlink($file);
+            }
+        }
+        for ($i=1 ;$i < 6; $i++){
+            $image = "images".$i;
+            if (!empty($file[$image]["tmp_name"])) {
+                move_uploaded_file($file[$image]["tmp_name"], 'Images/Test/' . $file[$image]['name']);
+                $listpic[] = "http://34.80.218.62/public/Images/Test/".$file[$image]['name'];
+            }
+        }
+
+        dd();
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "http://unlockv3.ninjateam.vn/api/NinjaUnlock/DetechPicture",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => '{"name": "test","list_pic":'.json_encode($listpic).' }',
+            CURLOPT_HTTPHEADER => array(
+                "content-type: application/json"
+            ),
+        ));
+
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+
+        curl_close($curl);
+
+        if ($err) {
+            echo "cURL Error #:" . $err;
+        } else {
+            echo $response;
+            $response = json_decode($response);
+        }
+
+dd($response);
+
+
+
+
+
+        $file = $_FILES;
+        $user = new User([
+            'phone' => $request->phone,
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+            'facebook' => ($request->facebook),
+            'zalo' => ($request->zalo),
+            'id_department' => ($request->id_department),
+            'id_cpny' => Auth::User()->id_cpny,
+            'birth_day' => ($request->birth_day),
+            'sex' => ($request->sex),
+            'permission' => ($request->permission),
+        ]);
+
+        $faceClassifier = new CascadeClassifier();
+        $faceClassifier->load('runphpopencv/models/lbpcascades/lbpcascade_frontalface.xml');
+        $faceRecognizer = LBPHFaceRecognizer::create();
+        $faceImages = $faceLabels = [];
+        $facetest=null;
+        for ($i=1 ;$i <6; $i++){
+            $image = "images".$i;
+            $src = imread($request->$image);
+            $gray = cvtColor($src, COLOR_BGR2GRAY);
+            $faceClassifier->detectMultiScale($gray, $faces);
+            equalizeHist($gray, $gray);
+            $facemax = null;
+            $Acreage = 0;
+            foreach ($faces as $k => $face) {
+                if($face->height*$face->width > $Acreage){
+                    $Acreage = $face->height*$face->width;
+                    $facemax = $face;
+                }
+            }
+            if($i == 1){
+                $facetest = $gray->getImageROI($facemax);
+            }
+            $faceImages[] = $gray->getImageROI($facemax);
+            $faceLabels[] = 3;
+        }
+        $faceRecognizer->read('name.txt');
+        $faceRecognizer->update($faceImages,$faceLabels);
+
+        $faceLabel = $faceRecognizer->predict($facetest, $faceConfidence);
+        if($faceLabel != 3) {
+            return response()->json([
+                'message' => 'Try again'
+            ],200);
+        }
+        $user->save();
+        $id = $user->id;
+
+
+        mkdir('Images/' . $id . '/avatar', 0777, true);
+        mkdir('Images/' . $id . '/train', 0777, true);
+        mkdir('Images/' . $id . '/root', 0777, true);
+        if (!empty($file["avatar"]["tmp_name"])) {
+            if (@is_array(getimagesize($file["avatar"]["tmp_name"]))) {
+                move_uploaded_file($file["avatar"]["tmp_name"], 'Images/' . $id . '/avatar/' . $file["avatar"]['name']);
+            }
+        }
+        for ($i=1 ;$i <6; $i++){
+            $image = "images".$i;
+            $src = imread($request->$image);
+            $gray = cvtColor($src, COLOR_BGR2GRAY);
+            $faceClassifier->detectMultiScale($gray, $faces);
+            equalizeHist($gray, $gray);
+            $facemax = null;
+            $Acreage = 0;
+            foreach ($faces as $k => $face) {
+                if($face->height*$face->width > $Acreage){
+                    $Acreage = $face->height*$face->width;
+                    $facemax = $face;
+                }
+            }
+            $faceLabels1[] = $id;
+            imwrite('Images/' . $id . '/train/image'.$i.'.jpg',$gray->getImageROI($facemax));
+            move_uploaded_file($request->$image, 'Images/' . $id . '/root/image'.$i .'.jpg');
+        }
+        $faceRecognizer = LBPHFaceRecognizer::create();
+        $faceRecognizer->read('faceRecogziner.txt');
+        $faceRecognizer->update($faceImages,$faceLabels1);
+        $faceRecognizer->write('faceRecogziner.txt');
+        $user->avatar = $file["avatar"]["name"];
+        $user->save();
+        return response()->json([
+            'message' => 'Successfully created user!'
+        ], 201);
+    }
+
+
     public function store(StoreAccount $request)
     {
         $file = $_FILES;

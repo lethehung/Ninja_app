@@ -16,8 +16,9 @@ use const CV\{COLOR_BGR2GRAY};
 class AttendanceController extends Controller
 {
     public function test(Request $request){
-        $files = scandir("Images/".$request->id."/root");
 
+
+       /* $files = scandir("Images/".$request->id."/root");
         $faceClassifier = new CascadeClassifier();
         $faceClassifier->load('runphpopencv/models/lbpcascades/lbpcascade_frontalface.xml');
         $faceRecognizer = LBPHFaceRecognizer::create();
@@ -36,6 +37,7 @@ class AttendanceController extends Controller
         }
         $faceImage = $gray->getImageROI($facemax);
         $faceLabel = $faceRecognizer->predict($faceImage, $faceConfidence);
+        dd($faceLabel);
         if($faceLabel == $request->id){
             return response()->json([
                 'message' => 'true'
@@ -45,7 +47,7 @@ class AttendanceController extends Controller
                 return response()->json([
                     'message' => 'false'
                 ],200);
-        }
+        }*/
 
     }
 

@@ -19,6 +19,7 @@ Route::group(['middleware' => 'auth:api'], function() {
     Route::post('test','API\AttendanceController@test');
     Route::post('attdance','API\AttendanceController@attend');
     Route::group(['prefix' => 'admin','middleware' => 'admin'], function () {
+        Route::post('create','API\AdminController@createTestAPI');
         Route::apiResource('member','API\AdminController');
         Route::post('configuration/{id}','API\ConfigurationController@update');
         Route::get('configuration/{id}','API\ConfigurationController@show');
