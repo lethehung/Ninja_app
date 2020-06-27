@@ -38,15 +38,13 @@ class AttendanceController extends Controller
         $response = curl_exec($curl);
         $err = curl_error($curl);
         curl_close($curl);
+    
         if ($err) {
             echo "cURL Error #:" . $err;
         } else {
             $response = json_decode($response);
         }
-        if($response->count <= 5) {
-           return false;
-        }
-        else return true;
+        return $response->count;
     }
     public function checkIdentification($image,$id){
         $curl = curl_init();
@@ -139,20 +137,27 @@ class AttendanceController extends Controller
 
     }
     public function createFolder(Request $request){
+        $id = Auth::user()->id;
+        if($this->getCountImage(Auth::user()->id)> 5)
+            return response()->json([
+                "message" => "Directory already exists"
+            ],201);
+
         $image= array();
-             mkdir('Images/'.$request->id.'/train', 0777, true);
+        if(!file_exists('Images/'.$id.'/train'))
+             mkdir('Images/'.$id.'/train', 0777, true);
+         dd();
         foreach ($_FILES as $k => $val){
            if(!empty($val["tmp_name"])){
-               move_uploaded_file($val["tmp_name"],'Images/'.$request->id.'/train/'.$val["name"]);
-               $image[] = "http://34.80.218.62/".'Images/'.$request->id.'/train/'.$val["name"];
+               move_uploaded_file($val["tmp_name"],'Images/'.$id.'/train/'.$val["name"]);
+               $image[] = "http://34.80.218.62/".'Images/'.$id.'/train/'.$val["name"];
            }
         }
-        $this->checkIdentification($image,$request->id);
-        if($this->checkIdentification($image,$request->id)){
+        if($this->checkIdentification($image,$id)){
             return response()->json(['message'=>'Successfully Identification'],200);
         }
         else{
-            $this->deleteFolder($request->id);
+            $this->deleteFolder($id);
         }
     }
 

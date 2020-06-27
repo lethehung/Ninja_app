@@ -18,6 +18,7 @@ Route::post('login','API\AuthController@login');
 Route::group(['middleware' => 'auth:api'], function() {
     Route::post('test','API\AttendanceController@test');
      Route::get('countImage/{id}','API\AttendanceController@getCountImage');
+    
     Route::post('Identification','API\AttendanceController@createFolder');
     Route::post('attdance','API\AttendanceController@attend');
 
@@ -30,6 +31,8 @@ Route::group(['middleware' => 'auth:api'], function() {
         Route::post('check','API\AttendanceController@checkAll');
         Route::post('check/{id}','API\AttendanceController@check');
     });
+
+
 
 
     Route::group(['prefix' => 'superadmin','middleware' => 'superadmin'], function () {
