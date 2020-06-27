@@ -87,7 +87,7 @@ class AttendanceController extends Controller
             CURLOPT_TIMEOUT => 30,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => '{"name": "test","pic":"'.$image[0].'" }',
+            CURLOPT_POSTFIELDS => '{"name":  "'.$id.'","pic":"'.$image[0].'" }',
             CURLOPT_HTTPHEADER => array(
                 "content-type: application/json"
             ),
@@ -141,7 +141,7 @@ class AttendanceController extends Controller
     public function createFolder(Request $request){
         $image= array();
         if(!file_exists('Images/'.$request->id.'/train'))
-        mkdir('Images/'.$request->id.'/train', 0777, true);
+             mkdir('Images/'.$request->id.'/train', 0777, true);
         foreach ($_FILES as $k => $val){
            if(!empty($val["tmp_name"])){
                move_uploaded_file($val["tmp_name"],'Images/'.$request->id.'/train/'.$val["name"]);
