@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Route;
 Route::post('login','API\AuthController@login');
 Route::group(['middleware' => 'auth:api'], function() {
     Route::post('test','API\AttendanceController@test');
+     Route::get('countImage/{id}','API\AttendanceController@getCountImage');
     Route::post('Identification','API\AttendanceController@createFolder');
     Route::post('attdance','API\AttendanceController@attend');
 
@@ -30,12 +31,6 @@ Route::group(['middleware' => 'auth:api'], function() {
         Route::post('check/{id}','API\AttendanceController@check');
     });
 
-
-
-    Route::group(['prefix' => 'superadmin','middleware' => 'superadmin'], function () {
-        Route::apiResource('company','API\SuperAdminController');
-        Route::post('company-edit/{id}','API\SuperAdminController@edit');
-    });
 
     Route::group(['prefix' => 'superadmin','middleware' => 'superadmin'], function () {
         Route::apiResource('company','API\SuperAdminController');
