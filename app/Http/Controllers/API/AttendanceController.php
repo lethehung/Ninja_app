@@ -24,14 +24,14 @@ class AttendanceController extends Controller
 
         $curl = curl_init();
         curl_setopt_array($curl, array(
-            CURLOPT_URL => "http://unlockv3.ninjateam.vn/api/NinjaUnlock/DetechPicture",
+            CURLOPT_URL => "http://unlockv3.ninjateam.vn/api/NinjaUnlock/SeachPicture",
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,
             CURLOPT_TIMEOUT => 30,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => '{"name": "'.$request->id.'","list_pic":"'.$file_dic.'" }',
+            CURLOPT_POSTFIELDS => '{"name": "test","pic":"'.$file_dic.'" }',
             CURLOPT_HTTPHEADER => array(
                 "content-type: application/json"
             ),
@@ -44,6 +44,12 @@ class AttendanceController extends Controller
             echo "cURL Error #:" . $err;
         } else {
             $response = json_decode($response);
+        }
+        if($response->message != "Đã tìm thấy"){
+            return response()->json([
+                "message" => "Failure identification"
+            ],200);
+            die();
         }
         dd($response);
     }
