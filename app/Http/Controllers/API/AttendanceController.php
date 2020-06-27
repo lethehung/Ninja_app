@@ -140,7 +140,6 @@ class AttendanceController extends Controller
     }
     public function createFolder(Request $request){
         $image= array();
-        if(!file_exists('Images/'.$request->id.'/train'))
              mkdir('Images/'.$request->id.'/train', 0777, true);
         foreach ($_FILES as $k => $val){
            if(!empty($val["tmp_name"])){
