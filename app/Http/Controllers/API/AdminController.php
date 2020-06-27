@@ -19,7 +19,7 @@ class AdminController extends Controller
     public function index(){
         return response()->json([User::all()],200);
     }
-    public function createTestAPI(Request $request){
+    public function createTestAPI(StoreAccount $request){
         $file = $_FILES;
         $listpic =array();
 
@@ -292,7 +292,6 @@ class AdminController extends Controller
             return response()->json([
                 'message' => 'Permission Denied!'
             ],400);
-
         }
     }
     public function show($id)

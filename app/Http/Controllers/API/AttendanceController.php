@@ -16,39 +16,36 @@ use const CV\{COLOR_BGR2GRAY};
 class AttendanceController extends Controller
 {
     public function test(Request $request){
-
-
-       /* $files = scandir("Images/".$request->id."/root");
-        $faceClassifier = new CascadeClassifier();
-        $faceClassifier->load('runphpopencv/models/lbpcascades/lbpcascade_frontalface.xml');
-        $faceRecognizer = LBPHFaceRecognizer::create();
-        $faceRecognizer->read('faceRecogziner.txt');
-        $src = imread($request->image);
-        $gray = cvtColor($src, COLOR_BGR2GRAY);
-        $faceClassifier->detectMultiScale($gray, $faces);
-        equalizeHist($gray, $gray);
-        $facemax = null;
-        $Acreage = 0;
-        foreach ($faces as $face) {
-                if($face->height*$face->width > $Acreage){
-                    $Acreage = $face->height*$face->width;
-                    $facemax = $face;
-                }
+        $file_dic ="";
+        if(!empty($_FILES["image"]["tmp_name"])){
+            $file_dic = "Images/Test/".$_FILES["image"]["name"];
+            move_uploaded_file($_FILES["image"]["tmp_name"],$file_dic);
         }
-        $faceImage = $gray->getImageROI($facemax);
-        $faceLabel = $faceRecognizer->predict($faceImage, $faceConfidence);
-        dd($faceLabel);
-        if($faceLabel == $request->id){
-            return response()->json([
-                'message' => 'true'
-            ],200);
-        }
-        else{
-                return response()->json([
-                    'message' => 'false'
-                ],200);
-        }*/
 
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "http://unlockv3.ninjateam.vn/api/NinjaUnlock/DetechPicture",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => '{"name": "'.$request->id.'","list_pic":"'.$file_dic.'" }',
+            CURLOPT_HTTPHEADER => array(
+                "content-type: application/json"
+            ),
+        ));
+
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+        curl_close($curl);
+        if ($err) {
+            echo "cURL Error #:" . $err;
+        } else {
+            $response = json_decode($response);
+        }
+        dd($response);
     }
 
     public function attend(Request $request){
